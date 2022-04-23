@@ -51,7 +51,7 @@ class PlayScene extends Phaser.Scene {
   update(time, delta) {
     this.totalDelta += delta;
 
-    if (this.isGameLost()) this.restartRound();
+    if (this.isGameLost()) this.gameOver();
 
     this.recyclePipes();
   }
@@ -79,13 +79,7 @@ class PlayScene extends Phaser.Scene {
 
   /** Create colliders */
   createColliders() {
-    this.physics.add.collider(
-      this.bird,
-      this.pipes,
-      this.restartRound,
-      null,
-      this
-    );
+    this.physics.add.collider(this.bird, this.pipes, this.gameOver, null, this);
   }
 
   /** Create control scheme */
@@ -99,8 +93,14 @@ class PlayScene extends Phaser.Scene {
     this.pipes = this.physics.add.group();
 
     for (let i = 0; i < this.PIPES_TO_RENDER; i++) {
-      const uPipe = this.pipes.create(0, 0, "pipe").setOrigin(0, 1);
-      const lPipe = this.pipes.create(0, 0, "pipe").setOrigin(0);
+      const uPipe = this.pipes
+        .create(0, 0, "pipe")
+        .setImmovable(true)
+        .setOrigin(0, 1);
+      const lPipe = this.pipes
+        .create(0, 0, "pipe")
+        .setImmovable(true)
+        .setOrigin(0);
       this.placePipeSet(uPipe, lPipe);
     }
 
@@ -110,6 +110,12 @@ class PlayScene extends Phaser.Scene {
   /** Bird flapping wings */
   flap() {
     this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
+  }
+
+  /** Handle game over event */
+  gameOver() {
+    this.physics.pause();
+    this.bird.setTint(0xfa1010);
   }
 
   /** Get horizontal position of farthest pipe */
@@ -176,7 +182,6 @@ class PlayScene extends Phaser.Scene {
 
   /** Restart round (begin game / after loss) */
   restartRound() {
-    console.log("Game lost!");
     // Reset player position
     this.bird.body.position.x = this.CONFIG.startPosition.x;
     this.bird.body.position.y = this.CONFIG.startPosition.y;
