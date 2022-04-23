@@ -45,6 +45,7 @@ class PlayScene extends Phaser.Scene {
     this.createBird();
     this.createPipes();
     this.createControls();
+    this.createColliders();
   }
 
   update(time, delta) {
@@ -76,6 +77,23 @@ class PlayScene extends Phaser.Scene {
     this.bird.body.gravity.y = this.BIRD_GRAVITY;
   }
 
+  /** Create colliders */
+  createColliders() {
+    this.physics.add.collider(
+      this.bird,
+      this.pipes,
+      this.restartRound,
+      null,
+      this
+    );
+  }
+
+  /** Create control scheme */
+  createControls() {
+    this.input.keyboard.on("keydown_SPACE", this.flap, this);
+    this.input.on("pointerdown", this.flap, this);
+  }
+
   /** Create initial pipes */
   createPipes() {
     this.pipes = this.physics.add.group();
@@ -87,12 +105,6 @@ class PlayScene extends Phaser.Scene {
     }
 
     this.pipes.setVelocityX(this.PIPE_VELOCITY);
-  }
-
-  /** Create control scheme */
-  createControls() {
-    this.input.keyboard.on("keydown_SPACE", this.flap, this);
-    this.input.on("pointerdown", this.flap, this);
   }
 
   /** Bird flapping wings */
@@ -117,8 +129,6 @@ class PlayScene extends Phaser.Scene {
     if (this.bird.body.position.y <= 0 || this.bird.body.position.y >= 600) {
       return true;
     }
-
-    // TODO: Detect bird collision with pipe
     return false;
   }
 
@@ -144,8 +154,6 @@ class PlayScene extends Phaser.Scene {
     uPipe.y = uPipeVerticalPosition;
     lPipe.x = this.pipeHorizontalPosition;
     lPipe.y = lPipeVerticalPosition;
-
-    console.log("here are pipes now", uPipe, lPipe);
   }
 
   /** Recycle pipe set */
@@ -168,9 +176,10 @@ class PlayScene extends Phaser.Scene {
 
   /** Restart round (begin game / after loss) */
   restartRound() {
+    console.log("Game lost!");
     // Reset player position
-    this.bird.body.position.x = this.BIRD_STARTING_X;
-    this.bird.body.position.y = this.BIRD_STARTING_Y;
+    this.bird.body.position.x = this.CONFIG.startPosition.x;
+    this.bird.body.position.y = this.CONFIG.startPosition.y;
     this.bird.body.velocity.y = 0;
   }
 
