@@ -22,9 +22,8 @@ const config = {
 function preload() {
   // Load images
   this.load.image("sky", "assets/sky.png");
-
-  // Load sprites
   this.load.image("bird", "assets/bird.png");
+
   return;
 }
 
@@ -36,12 +35,21 @@ function create() {
   bird = this.physics.add
     .sprite(config.width * 0.1, config.height / 2, "bird")
     .setOrigin(0);
-
+  bird.body.gravity.y = -200;
+  bird.body.velocity.x = 200;
   return;
 }
 
 function update(time, delta) {
   totalDelta += delta;
+
+  // Move bird back and forth
+  if (bird.body.position.x > 800) {
+    bird.body.velocity.x = -200;
+  } else if (bird.body.position.x < 0) {
+    bird.body.velocity.x = 200;
+  }
+
   return;
 }
 
