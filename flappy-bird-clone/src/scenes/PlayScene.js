@@ -97,8 +97,8 @@ class PlayScene extends Phaser.Scene {
 
   /** Create high score text */
   createHighScore() {
-    this.highScore = 0;
-    this.highScoreText = this.add.text(16, 48, `Best: ${this.score}`, {
+    this.highScore = this.getHighScore();
+    this.highScoreText = this.add.text(16, 48, `Best: ${this.highScore}`, {
       fontSize: "32px",
       fill: 0xaaaaaa,
     });
@@ -139,15 +139,30 @@ class PlayScene extends Phaser.Scene {
 
   /** Handle game over event */
   gameOver() {
+    // Stop game
     this.physics.pause();
     this.bird.setTint(0xfa1010);
 
+    // Save high score
+    const oldHighScore = this.getHighScore();
+    if (oldHighScore < this.highScore) {
+      this.setHighScore();
+    }
+
+    // Restart game
     this.time.addEvent({
       delay: 1000,
       callback: () => this.scene.restart(),
       callbackScope: this,
       loop: false,
     });
+  }
+
+  /** Get high score from localStorage */
+  getHighScore() {
+    const highScoreText = localStorage.getItem("highScore");
+    if (highScoreText) return parseInt(highScoreText, 10);
+    else return 0;
   }
 
   /** Get horizontal position of farthest pipe */
@@ -227,6 +242,12 @@ class PlayScene extends Phaser.Scene {
     // Place pipes
     this.increaseScore();
     this.placePipeSet(upperPipe, lowerPipe);
+  }
+
+  /** Set new high score in localStorage */
+  setHighScore() {
+    console.log("setting new high score");
+    localStorage.setItem("highScore", this.highScore);
   }
 
   ////////////////////////////////////////////////////////////////////////////
