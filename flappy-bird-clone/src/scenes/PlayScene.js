@@ -117,6 +117,13 @@ class PlayScene extends Phaser.Scene {
   gameOver() {
     this.physics.pause();
     this.bird.setTint(0xfa1010);
+
+    this.time.addEvent({
+      delay: 1000,
+      callback: () => this.scene.restart(),
+      callbackScope: this,
+      loop: false,
+    });
   }
 
   /** Get horizontal position of farthest pipe */
@@ -182,14 +189,6 @@ class PlayScene extends Phaser.Scene {
 
     // Place pipes
     this.placePipeSet(upperPipe, lowerPipe);
-  }
-
-  /** Restart round (begin game / after loss) */
-  restartRound() {
-    // Reset player position
-    this.bird.body.position.x = this.CONFIG.startPosition.x;
-    this.bird.body.position.y = this.CONFIG.startPosition.y;
-    this.bird.body.velocity.y = 0;
   }
 
   ////////////////////////////////////////////////////////////////////////////
