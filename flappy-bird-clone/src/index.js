@@ -3,7 +3,6 @@ import Phaser from "phaser";
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN GAME DATA
 ////////////////////////////////////////////////////////////////////////////////
-
 /** Phaser game config */
 const config = {
   type: Phaser.AUTO,
@@ -25,21 +24,24 @@ let totalDelta = null;
 // Pipe config data
 const FIRST_PIPE_HORIZONTAL_POSITION = 0;
 const PIPE_VERTICAL_DISTANCE_RANGE = [140, 200];
+const PIPE_HORIZONTAL_DISTANCE_RANGE = [400, 500];
 const PIPE_HOLE_RANGE = [80, 420];
-let pipeHorizontalPosition = FIRST_PIPE_HORIZONTAL_POSITION;
 const PIPE_TO_PIPE_DISTANCE = 400;
-const PIPE_VELOCITY = -300;
+const PIPE_VELOCITY = -250;
 const PIPES_TO_RENDER = 4;
-const PIPE_RESET_DISTANCE =
-  FIRST_PIPE_HORIZONTAL_POSITION +
-  PIPES_TO_RENDER * FIRST_PIPE_HORIZONTAL_POSITION;
 
 // Bird config data
-let bird = null;
 const BIRD_STARTING_X = config.width * 0.1;
 const BIRD_STARTING_Y = config.height / 2;
 const BIRD_GRAVITY = 400;
 const BIRD_FLAP_VELOCITY = -225;
+
+// Game state variables
+let pipeHorizontalPosition = FIRST_PIPE_HORIZONTAL_POSITION;
+
+// Sprites
+let bird = null;
+let pipes = null;
 
 ////////////////////////////////////////////////////////////////////////////////
 // END GAME DATA
@@ -77,13 +79,17 @@ function isGameLost() {
 /** Place a set of pipes on the canvas */
 function placePipeSet(uPipe, lPipe) {
   // Get horizontal position
-  pipeHorizontalPosition += PIPE_TO_PIPE_DISTANCE;
+  const rightMostXPosition = getRightMostPipe();
+  let pipeHorizontalDistance = Phaser.Math.Between(
+    ...PIPE_HORIZONTAL_DISTANCE_RANGE
+  );
+  pipeHorizontalPosition = rightMostXPosition + pipeHorizontalDistance;
 
   // Get vertical positions
   const pipeHole = Phaser.Math.Between(...PIPE_HOLE_RANGE);
   const pipeHoleSize = Phaser.Math.Between(...PIPE_VERTICAL_DISTANCE_RANGE);
-  let lPipeVerticalPosition = pipeHole + pipeHoleSize / 2;
-  let uPipeVerticalPosition = pipeHole - pipeHoleSize / 2;
+  const lPipeVerticalPosition = pipeHole + pipeHoleSize / 2;
+  const uPipeVerticalPosition = pipeHole - pipeHoleSize / 2;
 
   // Set positions
   uPipe.x = pipeHorizontalPosition;
@@ -96,6 +102,35 @@ function placePipeSet(uPipe, lPipe) {
   );
 
   console.log("pipe positions", uPipe.body.position, lPipe.body.position);
+}
+
+/** Recycle pipe set */
+function recyclePipes() {
+  // Get out of bounds pipes
+  let upperPipe = null;
+  let lowerPipe = null;
+  pipes.getChildren().forEach(function (pipe) {
+    if (pipe.getBounds().right <= 0) {
+      if (pipe.originY === 1) upperPipe = pipe;
+      else lowerPipe = pipe;
+    }
+  });
+
+  if (!upperPipe || !lowerPipe) return;
+
+  // Place pipes
+  placePipeSet(upperPipe, lowerPipe);
+}
+
+/** Get horizontal position of farthest pipe */
+function getRightMostPipe() {
+  let rightMostX = 0;
+
+  pipes.getChildren().forEach(function (pipe) {
+    rightMostX = Math.max(rightMostX, pipe.x);
+  });
+
+  return rightMostX;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,23 +154,23 @@ function create() {
   // Set scene
   this.add.image(0, 0, "sky").setOrigin(0);
 
-  // Set bird
+  // Set up bird
   bird = this.physics.add
     .sprite(BIRD_STARTING_X, BIRD_STARTING_Y, "bird")
     .setOrigin(0);
   bird.body.gravity.y = BIRD_GRAVITY;
 
-  // Set pipes (This should be changed)
-  for (let i = 0; i < PIPES_TO_RENDER; i++) {
-    // Create
-    const uPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 1);
-    const lPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0);
+  // Set up pipes
+  pipes = this.physics.add.group();
 
-    // Configure
+  for (let i = 0; i < PIPES_TO_RENDER; i++) {
+    const uPipe = pipes.create(0, 0, "pipe").setOrigin(0, 1);
+    const lPipe = pipes.create(0, 0, "pipe").setOrigin(0);
+
     placePipeSet(uPipe, lPipe);
-    uPipe.body.velocity.x = PIPE_VELOCITY;
-    lPipe.body.velocity.x = PIPE_VELOCITY;
   }
+
+  pipes.setVelocityX(PIPE_VELOCITY);
 
   // Set control scheme
   this.input.keyboard.on("keydown_SPACE", flap);
@@ -146,8 +181,9 @@ function create() {
 function update(time, delta) {
   totalDelta += delta;
 
-  // Detect game over
   if (isGameLost()) restartRound();
+
+  recyclePipes();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
