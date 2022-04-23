@@ -75,6 +75,7 @@ class PlayScene extends Phaser.Scene {
       .sprite(this.CONFIG.startPosition.x, this.CONFIG.startPosition.y, "bird")
       .setOrigin(0);
     this.bird.body.gravity.y = this.BIRD_GRAVITY;
+    this.bird.setCollideWorldBounds(true);
   }
 
   /** Create colliders */
@@ -132,7 +133,10 @@ class PlayScene extends Phaser.Scene {
   /** Detect whether or not game has been lost */
   isGameLost() {
     // Did bird touch top or bottom of screen?
-    if (this.bird.body.position.y <= 0 || this.bird.body.position.y >= 600) {
+    if (
+      this.bird.getBounds().bottom >= this.CONFIG.height ||
+      this.bird.getBounds().top <= 0
+    ) {
       return true;
     }
     return false;
