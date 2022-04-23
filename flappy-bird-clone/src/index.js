@@ -45,12 +45,22 @@ function update(time, delta) {
   totalDelta += delta;
 
   // Move bird back and forth
-  if (bird.body.position.x > config.width - bird.width) {
+  /*   if (bird.body.position.x > config.width - bird.width) {
     bird.body.velocity.x = -200;
   } else if (bird.body.position.x < 0) {
     bird.body.velocity.x = 200;
+  } */
+
+  if (bird.body.position.y <= 0 || bird.body.position.y >= config.height) {
+    restartPlayerPosition();
   }
 
+  return;
+}
+
+function restartPlayerPosition() {
+  bird.body.position.y = config.height / 2 - bird.height / 2;
+  bird.body.velocity.y = 0;
   return;
 }
 
