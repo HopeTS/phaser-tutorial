@@ -41,30 +41,10 @@ class PlayScene extends Phaser.Scene {
   }
 
   create() {
-    // Set background
-    this.add.image(0, 0, "sky").setOrigin(0);
-
-    // Set up bird
-    this.bird = this.physics.add
-      .sprite(this.CONFIG.startPosition.x, this.CONFIG.startPosition.y, "bird")
-      .setOrigin(0);
-    this.bird.body.gravity.y = this.BIRD_GRAVITY;
-
-    // Set up pipes
-    this.pipes = this.physics.add.group();
-
-    for (let i = 0; i < this.PIPES_TO_RENDER; i++) {
-      const uPipe = this.pipes.create(0, 0, "pipe").setOrigin(0, 1);
-      const lPipe = this.pipes.create(0, 0, "pipe").setOrigin(0);
-
-      this.placePipeSet(uPipe, lPipe);
-    }
-
-    this.pipes.setVelocityX(this.PIPE_VELOCITY);
-
-    // Set control scheme
-    this.input.keyboard.on("keydown_SPACE", this.flap, this);
-    this.input.on("pointerdown", this.flap, this);
+    this.createBG();
+    this.createBird();
+    this.createPipes();
+    this.createControls();
   }
 
   update(time, delta) {
@@ -82,6 +62,38 @@ class PlayScene extends Phaser.Scene {
   ////////////////////////////////////////////////////////////////////////////
   // BEGIN GAME LOGIC
   ////////////////////////////////////////////////////////////////////////////
+
+  /** Create scene background */
+  createBG() {
+    this.add.image(0, 0, "sky").setOrigin(0);
+  }
+
+  /** Create player bird */
+  createBird() {
+    this.bird = this.physics.add
+      .sprite(this.CONFIG.startPosition.x, this.CONFIG.startPosition.y, "bird")
+      .setOrigin(0);
+    this.bird.body.gravity.y = this.BIRD_GRAVITY;
+  }
+
+  /** Create initial pipes */
+  createPipes() {
+    this.pipes = this.physics.add.group();
+
+    for (let i = 0; i < this.PIPES_TO_RENDER; i++) {
+      const uPipe = this.pipes.create(0, 0, "pipe").setOrigin(0, 1);
+      const lPipe = this.pipes.create(0, 0, "pipe").setOrigin(0);
+      this.placePipeSet(uPipe, lPipe);
+    }
+
+    this.pipes.setVelocityX(this.PIPE_VELOCITY);
+  }
+
+  /** Create control scheme */
+  createControls() {
+    this.input.keyboard.on("keydown_SPACE", this.flap, this);
+    this.input.on("pointerdown", this.flap, this);
+  }
 
   /** Bird flapping wings */
   flap() {
