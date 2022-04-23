@@ -7,9 +7,9 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
-      gravity: {
-        y: 200,
-      },
+      /*       gravity: {
+        y: 300,
+      }, */
     },
   },
   scene: {
@@ -23,21 +23,44 @@ function preload() {
   // Load images
   this.load.image("sky", "assets/sky.png");
   this.load.image("bird", "assets/bird.png");
-
+  this.load.image("pipe", "assets/pipe.png");
   return;
 }
 
+let bottomPipe1 = null;
+let topPipe1 = null;
+
+let bottomPipe2 = null;
+let topPipe2 = null;
+
+let pipeHole = 0;
+
 let bird = null;
 let totalDelta = null;
-const VELOCITY = -200;
+const VELOCITY = -225;
 
 function create() {
+  // Set scene
   this.add.image(0, 0, "sky").setOrigin(0);
+
+  // Set bird
   bird = this.physics.add
     .sprite(config.width * 0.1, config.height / 2, "bird")
     .setOrigin(0);
+  bird.body.gravity.y = 400;
 
+  // Set pipes
+  const initialPipeHole = createPipeHole();
+  bottomPipe1 = this.physics.add
+    .sprite(config.width * 0.3, initialPipeHole - 50, "pipe")
+    .setOrigin(0, 1);
+  topPipe1 = this.physics.add
+    .sprite(config.width * 0.3, initialPipeHole + 50, "pipe")
+    .setOrigin(0, 0);
+
+  // Set controls
   this.input.keyboard.on("keydown_SPACE", flap);
+  this.input.on("pointerdown", flap);
   return;
 }
 
@@ -67,6 +90,10 @@ function restartPlayerPosition() {
 function flap() {
   bird.body.velocity.y = VELOCITY;
   return;
+}
+
+function createPipeHole() {
+  return Math.random() * (config.height - 200) + 100;
 }
 
 new Phaser.Game(config);
