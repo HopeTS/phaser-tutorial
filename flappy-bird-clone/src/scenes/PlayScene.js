@@ -25,6 +25,8 @@ class PlayScene extends Phaser.Scene {
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
     this.score = 0;
     this.scoreText = "";
+    this.highScore = 0;
+    this.highScoreText = "";
 
     // Sprites
     this.bird = null;
@@ -49,6 +51,7 @@ class PlayScene extends Phaser.Scene {
     this.createControls();
     this.createColliders();
     this.createScore();
+    this.createHighScore();
   }
 
   update(time, delta) {
@@ -92,6 +95,15 @@ class PlayScene extends Phaser.Scene {
     this.input.on("pointerdown", this.flap, this);
   }
 
+  /** Create high score text */
+  createHighScore() {
+    this.highScore = 0;
+    this.highScoreText = this.add.text(16, 48, `Best: ${this.score}`, {
+      fontSize: "32px",
+      fill: 0xaaaaaa,
+    });
+  }
+
   /** Create initial pipes */
   createPipes() {
     this.pipes = this.physics.add.group();
@@ -111,7 +123,7 @@ class PlayScene extends Phaser.Scene {
     this.pipes.setVelocityX(this.PIPE_VELOCITY);
   }
 
-  /** Create score */
+  /** Create score test */
   createScore() {
     this.score = 0;
     this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, {
@@ -151,8 +163,15 @@ class PlayScene extends Phaser.Scene {
 
   /** Increase score */
   increaseScore() {
+    // Current score
     this.score++;
     this.scoreText.setText(`Score: ${this.score}`);
+
+    // Set high score (if applicable)
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      this.highScoreText.setText(`Best: ${this.highScore}`);
+    }
   }
 
   /** Detect whether or not game has been lost */
