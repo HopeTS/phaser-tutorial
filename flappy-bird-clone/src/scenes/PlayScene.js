@@ -19,10 +19,12 @@ class PlayScene extends Phaser.Scene {
 
     // Bird config data
     this.BIRD_GRAVITY = 400;
-    this.BIRD_FLAP_VELOCITY = -225;
+    this.BIRD_FLAP_VELOCITY = -300;
 
     // Game state variables
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
+    this.score = 0;
+    this.scoreText = "";
 
     // Sprites
     this.bird = null;
@@ -46,6 +48,7 @@ class PlayScene extends Phaser.Scene {
     this.createPipes();
     this.createControls();
     this.createColliders();
+    this.createScore();
   }
 
   update(time, delta) {
@@ -108,6 +111,15 @@ class PlayScene extends Phaser.Scene {
     this.pipes.setVelocityX(this.PIPE_VELOCITY);
   }
 
+  /** Create score */
+  createScore() {
+    this.score = 0;
+    this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, {
+      fontSize: "32px",
+      fill: 0xffffff,
+    });
+  }
+
   /** Bird flapping wings */
   flap() {
     this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
@@ -135,6 +147,12 @@ class PlayScene extends Phaser.Scene {
     });
 
     return rightMostX;
+  }
+
+  /** Increase score */
+  increaseScore() {
+    this.score++;
+    this.scoreText.setText(`Score: ${this.score}`);
   }
 
   /** Detect whether or not game has been lost */
@@ -188,6 +206,7 @@ class PlayScene extends Phaser.Scene {
     if (!upperPipe || !lowerPipe) return;
 
     // Place pipes
+    this.increaseScore();
     this.placePipeSet(upperPipe, lowerPipe);
   }
 
