@@ -23,14 +23,16 @@ const config = {
 let totalDelta = null;
 
 // Pipe config data
-let upperPipe = null;
-let lowerPipe = null;
-const FIRST_PIPE_DISTANCE = config.width / 2;
+const FIRST_PIPE_HORIZONTAL_POSITION = 0;
 const PIPE_VERTICAL_DISTANCE_RANGE = [140, 200];
 const PIPE_HOLE_RANGE = [80, 420];
-const PIPE_HORIZONTAL_DISTANCE = 400;
+let pipeHorizontalPosition = FIRST_PIPE_HORIZONTAL_POSITION;
+const PIPE_TO_PIPE_DISTANCE = 400;
 const PIPE_VELOCITY = -300;
 const PIPES_TO_RENDER = 4;
+const PIPE_RESET_DISTANCE =
+  FIRST_PIPE_HORIZONTAL_POSITION +
+  PIPES_TO_RENDER * FIRST_PIPE_HORIZONTAL_POSITION;
 
 // Bird config data
 let bird = null;
@@ -59,20 +61,6 @@ function restartRound() {
   bird.body.position.x = BIRD_STARTING_X;
   bird.body.position.y = BIRD_STARTING_Y;
   bird.body.velocity.y = 0;
-
-  return;
-}
-
-/** Generate vertical coordinates for pipe set */
-function getPipeVerticalPositions() {
-  // Get center of pipe hole and hole size
-  const pipeHole = Phaser.Math.Between(...PIPE_HOLE_RANGE);
-  const pipeHoleSize = Phaser.Math.Between(...PIPE_VERTICAL_DISTANCE_RANGE);
-
-  return {
-    lower: pipeHole + pipeHoleSize / 2,
-    upper: pipeHole - pipeHoleSize / 2,
-  };
 }
 
 /** Detect whether or not game has been lost */
@@ -84,6 +72,30 @@ function isGameLost() {
 
   // TODO: Detect bird collision with pipe
   return false;
+}
+
+/** Place a set of pipes on the canvas */
+function placePipeSet(uPipe, lPipe) {
+  // Get horizontal position
+  pipeHorizontalPosition += PIPE_TO_PIPE_DISTANCE;
+
+  // Get vertical positions
+  const pipeHole = Phaser.Math.Between(...PIPE_HOLE_RANGE);
+  const pipeHoleSize = Phaser.Math.Between(...PIPE_VERTICAL_DISTANCE_RANGE);
+  let lPipeVerticalPosition = pipeHole + pipeHoleSize / 2;
+  let uPipeVerticalPosition = pipeHole - pipeHoleSize / 2;
+
+  // Set positions
+  uPipe.x = pipeHorizontalPosition;
+  uPipe.y = uPipeVerticalPosition;
+  lPipe.x = pipeHorizontalPosition;
+  lPipe.y = lPipeVerticalPosition;
+
+  console.log(
+    `pipe horizontal: ${pipeHorizontalPosition}, pipe verticals: ${uPipeVerticalPosition} ${lPipeVerticalPosition}`
+  );
+
+  console.log("pipe positions", uPipe.body.position, lPipe.body.position);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +112,6 @@ function preload() {
   this.load.image("sky", "assets/sky.png");
   this.load.image("bird", "assets/bird.png");
   this.load.image("pipe", "assets/pipe.png");
-  return;
 }
 
 /** Scene create step */
@@ -116,30 +127,19 @@ function create() {
 
   // Set pipes (This should be changed)
   for (let i = 0; i < PIPES_TO_RENDER; i++) {
-    // Calculate positions
-    const verticalPositions = getPipeVerticalPositions();
-    const horizontalPosition =
-      i * PIPE_HORIZONTAL_DISTANCE + FIRST_PIPE_DISTANCE;
+    // Create
+    const uPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0, 1);
+    const lPipe = this.physics.add.sprite(0, 0, "pipe").setOrigin(0);
 
-    console.log("Pipe postions", horizontalPosition, verticalPositions);
-
-    // Create sprites
-    upperPipe = this.physics.add
-      .sprite(horizontalPosition, verticalPositions.upper, "pipe")
-      .setOrigin(0, 1);
-    lowerPipe = this.physics.add
-      .sprite(horizontalPosition, verticalPositions.lower, "pipe")
-      .setOrigin(0, 0);
-
-    // Set pipe speed
-    upperPipe.body.velocity.x = PIPE_VELOCITY;
-    lowerPipe.body.velocity.x = PIPE_VELOCITY;
+    // Configure
+    placePipeSet(uPipe, lPipe);
+    uPipe.body.velocity.x = PIPE_VELOCITY;
+    lPipe.body.velocity.x = PIPE_VELOCITY;
   }
 
   // Set control scheme
   this.input.keyboard.on("keydown_SPACE", flap);
   this.input.on("pointerdown", flap);
-  return;
 }
 
 /** Scene update step */
@@ -148,8 +148,6 @@ function update(time, delta) {
 
   // Detect game over
   if (isGameLost()) restartRound();
-
-  return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
