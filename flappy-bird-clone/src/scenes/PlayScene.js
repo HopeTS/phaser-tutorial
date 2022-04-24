@@ -146,7 +146,7 @@ class PlayScene extends BaseScene {
 
   /** Bird flapping wings */
   flap() {
-    this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
+    if (!this.paused) this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
   }
 
   /** Handle game over event */
@@ -217,11 +217,9 @@ class PlayScene extends BaseScene {
   pause() {
     if (!this.paused) {
       this.physics.pause();
-      this.scene.pause();
       this.paused = true;
     } else {
       this.physics.resume();
-      this.scene.resume();
       this.paused = false;
     }
   }
