@@ -1,9 +1,10 @@
 import Phaser from "phaser";
 
-class MenuScene extends Phaser.Scene {
+import BaseScene from "./BaseScene";
+
+class MenuScene extends BaseScene {
   constructor(config) {
-    super("MenuScene");
-    this.CONFIG = config;
+    super("MenuScene", config);
   }
 
   ////////////////////////////////////////////////////////////////////////////
@@ -13,7 +14,8 @@ class MenuScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.createBG();
+    super.create();
+    this.scene.start("PlayScene");
   }
 
   update() {}
@@ -25,10 +27,6 @@ class MenuScene extends Phaser.Scene {
   ////////////////////////////////////////////////////////////////////////////
   // BEGIN GAME LOGIC
   ////////////////////////////////////////////////////////////////////////////
-
-  createBG() {
-    this.add.image(0, 0, "sky").setOrigin(0);
-  }
 
   ////////////////////////////////////////////////////////////////////////////
   // END GAME LOGIC

@@ -1,11 +1,12 @@
 import Phaser from "phaser";
 
-class PlayScene extends Phaser.Scene {
+import BaseScene from "./BaseScene";
+
+class PlayScene extends BaseScene {
   constructor(config) {
-    super("PlayScene");
+    super("PlayScene", config);
 
     // General game metadata
-    this.CONFIG = config;
     this.totalDelta = null;
 
     // Pipe config data
@@ -41,7 +42,7 @@ class PlayScene extends Phaser.Scene {
   preload() {}
 
   create() {
-    this.createBG();
+    super.create();
     this.createBird();
     this.createPipes();
     this.createControls();
@@ -66,11 +67,6 @@ class PlayScene extends Phaser.Scene {
   ////////////////////////////////////////////////////////////////////////////
   // BEGIN GAME LOGIC
   ////////////////////////////////////////////////////////////////////////////
-
-  /** Create scene background */
-  createBG() {
-    this.add.image(0, 0, "sky").setOrigin(0);
-  }
 
   /** Create player bird */
   createBird() {
