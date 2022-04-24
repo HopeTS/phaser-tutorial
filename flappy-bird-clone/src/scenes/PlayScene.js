@@ -22,6 +22,7 @@ class PlayScene extends Phaser.Scene {
     this.BIRD_FLAP_VELOCITY = -300;
 
     // Game state variables
+    this.paused = false;
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
     this.score = 0;
     this.scoreText = "";
@@ -37,12 +38,7 @@ class PlayScene extends Phaser.Scene {
   // BEGIN SCENE FUNCTIONS
   ////////////////////////////////////////////////////////////////////////////
 
-  preload() {
-    // Load images
-    this.load.image("sky", "assets/sky.png");
-    this.load.image("bird", "assets/bird.png");
-    this.load.image("pipe", "assets/pipe.png");
-  }
+  preload() {}
 
   create() {
     this.createBG();
@@ -52,6 +48,7 @@ class PlayScene extends Phaser.Scene {
     this.createColliders();
     this.createScore();
     this.createHighScore();
+    this.createPause();
   }
 
   update(time, delta) {
@@ -102,6 +99,25 @@ class PlayScene extends Phaser.Scene {
       fontSize: "16px",
       fill: 0xaaaaaa,
     });
+  }
+
+  /** Create pause button */
+  createPause() {
+    const pauseButton = this.add
+      .image(this.CONFIG.width - 10, this.CONFIG.height - 10, "pause")
+      .setInteractive()
+      .setScale(3)
+      .setOrigin(1);
+
+    pauseButton.on(
+      "pointerdown",
+      () => {
+        this.pause();
+      },
+      this
+    );
+
+    console.log(pauseButton.on);
   }
 
   /** Create initial pipes */
@@ -199,6 +215,19 @@ class PlayScene extends Phaser.Scene {
       return true;
     }
     return false;
+  }
+
+  /** Pause the game */
+  pause() {
+    if (!this.paused) {
+      this.physics.pause();
+      this.scene.pause();
+      this.paused = true;
+    } else {
+      this.physics.resume();
+      this.scene.resume();
+      this.paused = false;
+    }
   }
 
   /** Place a set of pipes on the canvas */
