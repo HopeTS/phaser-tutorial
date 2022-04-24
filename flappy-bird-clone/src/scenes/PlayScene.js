@@ -99,7 +99,7 @@ class PlayScene extends Phaser.Scene {
   createHighScore() {
     this.highScore = this.getHighScore();
     this.highScoreText = this.add.text(16, 48, `Best: ${this.highScore}`, {
-      fontSize: "32px",
+      fontSize: "16px",
       fill: 0xaaaaaa,
     });
   }
