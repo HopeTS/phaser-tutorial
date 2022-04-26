@@ -23,6 +23,7 @@ class PlayScene extends BaseScene {
     this.BIRD_FLAP_VELOCITY = -300;
 
     // Game state variables
+    this.paused = false;
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
     this.score = 0;
     this.scoreText = "";
@@ -120,6 +121,7 @@ class PlayScene extends BaseScene {
     pauseButton.on(
       "pointerdown",
       () => {
+        this.paused = true;
         this.pause();
       },
       this
@@ -158,6 +160,7 @@ class PlayScene extends BaseScene {
 
   /** Bird flapping wings */
   flap() {
+    if (this.paused) return;
     this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
   }
 
@@ -231,7 +234,8 @@ class PlayScene extends BaseScene {
     this.pauseEvent = this.events.on(
       "resume",
       () => {
-        console.log("On resume");
+        this.paused = false;
+
         // Create countdown text
         this.initialTime = 3;
         this.countDownText = this.add
