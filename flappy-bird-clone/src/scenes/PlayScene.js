@@ -20,7 +20,7 @@ class PlayScene extends BaseScene {
 
     // Bird config data
     this.BIRD_GRAVITY = 400;
-    this.BIRD_FLAP_VELOCITY = -300;
+    this.BIRD_FLAP_VELOCITY = -200;
 
     // Difficulties
     this.DIFFICULTIES = {
@@ -218,6 +218,17 @@ class PlayScene extends BaseScene {
     });
 
     return rightMostX;
+  }
+
+  /** Automatically increase difficulty as the game progresses */
+  increaseDifficulty() {
+    if (this.score === 10 && this.difficulty === "easy") {
+      this.difficulty = "normal";
+    }
+
+    if (score === 25 && this.difficulty === "normal") {
+      this.difficulty = "hard";
+    }
   }
 
   /** Increase score */
