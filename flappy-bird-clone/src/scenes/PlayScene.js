@@ -22,7 +22,24 @@ class PlayScene extends BaseScene {
     this.BIRD_GRAVITY = 400;
     this.BIRD_FLAP_VELOCITY = -300;
 
+    // Difficulties
+    this.DIFFICULTIES = {
+      easy: {
+        pipeHorizontalDistanceRange: [300, 350],
+        pipeVerticalDistanceRange: [150, 200],
+      },
+      normal: {
+        pipeHorizontalDistanceRange: [275, 325],
+        pipeVerticalDistanceRange: [130, 180],
+      },
+      hard: {
+        pipeHorizontalDistanceRange: [250, 300],
+        pipeVerticalDistanceRange: [110, 160],
+      },
+    };
+
     // Game state variables
+    this.currentDifficulty = "easy";
     this.paused = false;
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
     this.score = 0;
@@ -267,10 +284,13 @@ class PlayScene extends BaseScene {
 
   /** Place a set of pipes on the canvas */
   placePipeSet(uPipe, lPipe) {
+    // Get current difficulty info
+    const difficulty = this.DIFFICULTIES[this.currentDifficulty];
+
     // Get horizontal position
     const rightMostXPosition = this.getRightMostPipe();
     let pipeHorizontalDistance = Phaser.Math.Between(
-      ...this.PIPE_HORIZONTAL_DISTANCE_RANGE
+      ...difficulty.pipeHorizontalDistanceRange
     );
     this.pipeHorizontalPosition = rightMostXPosition + pipeHorizontalDistance;
 
