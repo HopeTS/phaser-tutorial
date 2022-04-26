@@ -7,7 +7,7 @@ import {
   PauseScene,
 } from "./scenes";
 
-const WIDTH = 800;
+const WIDTH = 400;
 const HEIGHT = 600;
 const BIRD_POSITION = { x: WIDTH / 10, y: HEIGHT / 2 };
 
