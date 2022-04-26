@@ -15,12 +15,12 @@ class PlayScene extends BaseScene {
     this.PIPE_HORIZONTAL_DISTANCE_RANGE = [400, 500];
     this.PIPE_HOLE_RANGE = [80, 420];
     this.PIPE_TO_PIPE_DISTANCE = 400;
-    this.PIPE_VELOCITY = -250;
+    this.PIPE_VELOCITY = -200;
     this.PIPES_TO_RENDER = 4;
 
     // Bird config data
-    this.BIRD_GRAVITY = 400;
-    this.BIRD_FLAP_VELOCITY = -200;
+    this.BIRD_GRAVITY = 500;
+    this.BIRD_FLAP_VELOCITY = -250;
 
     // Difficulties
     this.DIFFICULTIES = {
@@ -68,6 +68,7 @@ class PlayScene extends BaseScene {
     this.createHighScore();
     this.createPause();
     this.listenToEvents();
+    this.createAnimations();
   }
 
   update(time, delta) {
@@ -98,11 +99,27 @@ class PlayScene extends BaseScene {
     }
   }
 
+  /** Create animations */
+  createAnimations() {
+    // Bird flapping
+    this.anims.create({
+      key: "fly",
+      frames: this.anims.generateFrameNumbers("bird", { start: 9, end: 16 }),
+      frameRate: 12,
+      repeat: -1,
+    });
+
+    this.bird.play("fly");
+  }
+
   /** Create player bird */
   createBird() {
     this.bird = this.physics.add
       .sprite(this.CONFIG.startPosition.x, this.CONFIG.startPosition.y, "bird")
-      .setOrigin(0);
+      .setOrigin(0)
+      .setScale(3)
+      .setFlipX(true);
+
     this.bird.body.gravity.y = this.BIRD_GRAVITY;
     this.bird.setCollideWorldBounds(true);
   }
@@ -185,7 +202,10 @@ class PlayScene extends BaseScene {
   gameOver() {
     // Stop game
     this.physics.pause();
+
+    // Stop bird
     this.bird.setTint(0xfa1010);
+    this.bird.anims.stop();
 
     // Save high score
     const oldHighScore = this.getHighScore();
@@ -226,13 +246,16 @@ class PlayScene extends BaseScene {
       this.difficulty = "normal";
     }
 
-    if (score === 25 && this.difficulty === "normal") {
+    if (this.score === 25 && this.difficulty === "normal") {
       this.difficulty = "hard";
     }
   }
 
   /** Increase score */
   increaseScore() {
+    // Difficulty check
+    this.increaseDifficulty();
+
     // Current score
     this.score++;
     this.scoreText.setText(`Score: ${this.score}`);
