@@ -23,7 +23,6 @@ class PlayScene extends BaseScene {
     this.BIRD_FLAP_VELOCITY = -300;
 
     // Game state variables
-    this.paused = false;
     this.pipeHorizontalPosition = this.FIRST_PIPE_HORIZONTAL_POSITION;
     this.score = 0;
     this.scoreText = "";
@@ -50,6 +49,7 @@ class PlayScene extends BaseScene {
     this.createScore();
     this.createHighScore();
     this.createPause();
+    this.listenToEvents();
   }
 
   update(time, delta) {
@@ -67,6 +67,18 @@ class PlayScene extends BaseScene {
   ////////////////////////////////////////////////////////////////////////////
   // BEGIN GAME LOGIC
   ////////////////////////////////////////////////////////////////////////////
+
+  /** Handle the resume game countdown timer */
+  countDown() {
+    this.initialTime--;
+    this.countDownText.setText(`Fly in: ${this.initialTime}`);
+
+    if (this.initialTime === 0) {
+      this.countDownText.setText("");
+      this.physics.resume();
+      this.timedEvent.remove();
+    }
+  }
 
   /** Create player bird */
   createBird() {
@@ -146,7 +158,7 @@ class PlayScene extends BaseScene {
 
   /** Bird flapping wings */
   flap() {
-    if (!this.paused) this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
+    this.bird.body.velocity.y = this.BIRD_FLAP_VELOCITY;
   }
 
   /** Handle game over event */
@@ -213,15 +225,40 @@ class PlayScene extends BaseScene {
     return false;
   }
 
+  /** Listen to scene events */
+  listenToEvents() {
+    if (this.pauseEvent) return;
+    this.pauseEvent = this.events.on(
+      "resume",
+      () => {
+        console.log("On resume");
+        // Create countdown text
+        this.initialTime = 3;
+        this.countDownText = this.add
+          .text(
+            ...this.SCREEN_CENTER,
+            "Fly in: " + this.initialTime,
+            this.fontOptions
+          )
+          .setOrigin(0.5);
+
+        // Set up countdown timer
+        this.timedEvent = this.time.addEvent({
+          delay: 1000,
+          callback: this.countDown,
+          callbackScope: this,
+          loop: true,
+        });
+      },
+      this
+    );
+  }
+
   /** Pause the game */
   pause() {
-    if (!this.paused) {
-      this.physics.pause();
-      this.paused = true;
-    } else {
-      this.physics.resume();
-      this.paused = false;
-    }
+    this.scene.pause();
+    this.physics.pause();
+    this.scene.launch("PauseScene");
   }
 
   /** Place a set of pipes on the canvas */

@@ -34,10 +34,10 @@ class BaseScene extends Phaser.Scene {
   ////////////////////////////////////////////////////////////////////////////
 
   /** Create a GUI menu */
-  createMenu(menu) {
+  createMenu(menu, setupMenuEvents) {
     let lastMenuPositionY = 0;
 
-    menu.forEach((menuItem, setupMenuEvents) => {
+    menu.forEach((menuItem) => {
       // Menu item positioning
       const menuItemPosition = [
         this.SCREEN_CENTER[0],
@@ -45,7 +45,9 @@ class BaseScene extends Phaser.Scene {
       ];
       lastMenuPositionY += this.MENU_CONFIG.lineHeight;
 
-      const menuItemGO = this.createMenuItem(menuItem, menuItemPosition);
+      menuItem.textGO = this.createMenuItem(menuItem, menuItemPosition);
+
+      setupMenuEvents(menuItem);
     });
   }
 
@@ -56,24 +58,7 @@ class BaseScene extends Phaser.Scene {
       .text(...position, menuItem.text, this.MENU_CONFIG.fontOptions)
       .setOrigin(0.5, 1);
 
-    if (menuItem.defaultConfig) {
-      menuItemGO.setInteractive();
-
-      // On click event
-      menuItemGO.on("pointerup", () => {
-        menuItem.scene != null && this.scene.start(menuItem.scene);
-      });
-
-      // On hover event
-      menuItemGO.on("pointerover", () => {
-        menuItemGO.setFill(this.MENU_CONFIG.hoverFontOptions.fill);
-      });
-
-      // Off hover event
-      menuItemGO.on("pointerout", () => {
-        menuItemGO.setFill(this.MENU_CONFIG.fontOptions.fill);
-      });
-    }
+    return menuItemGO;
   }
 
   ////////////////////////////////////////////////////////////////////////////

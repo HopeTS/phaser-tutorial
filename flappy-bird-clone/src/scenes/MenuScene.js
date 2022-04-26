@@ -48,6 +48,10 @@ class MenuScene extends BaseScene {
     textGO.on("pointerout", () => {
       textGO.setStyle({ fill: "#fff" });
     });
+
+    textGO.on("pointerup", () => {
+      menuItem.scene && this.scene.start(menuItem.scene);
+    });
   }
 
   ////////////////////////////////////////////////////////////////////////////
