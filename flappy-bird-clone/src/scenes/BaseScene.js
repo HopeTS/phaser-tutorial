@@ -37,7 +37,7 @@ class BaseScene extends Phaser.Scene {
   createMenu(menu) {
     let lastMenuPositionY = 0;
 
-    menu.forEach((menuItem) => {
+    menu.forEach((menuItem, setupMenuEvents) => {
       // Menu item positioning
       const menuItemPosition = [
         this.SCREEN_CENTER[0],
@@ -45,27 +45,35 @@ class BaseScene extends Phaser.Scene {
       ];
       lastMenuPositionY += this.MENU_CONFIG.lineHeight;
 
-      // Create menu item
-      const newMenuItem = this.add
-        .text(...menuItemPosition, menuItem.text, this.MENU_CONFIG.fontOptions)
-        .setOrigin(0.5, 1)
-        .setInteractive();
+      const menuItemGO = this.createMenuItem(menuItem, menuItemPosition);
+    });
+  }
+
+  /** Create menu item game object */
+  createMenuItem(menuItem, position) {
+    // Create game object
+    const menuItemGO = this.add
+      .text(...position, menuItem.text, this.MENU_CONFIG.fontOptions)
+      .setOrigin(0.5, 1);
+
+    if (menuItem.defaultConfig) {
+      menuItemGO.setInteractive();
 
       // On click event
-      newMenuItem.on("pointerdown", () => {
-        menuItem.scene && this.scene.start(menuItem.scene);
+      menuItemGO.on("pointerup", () => {
+        menuItem.scene != null && this.scene.start(menuItem.scene);
       });
 
       // On hover event
-      newMenuItem.on("pointerover", () => {
-        newMenuItem.setFill(this.MENU_CONFIG.hoverFontOptions.fill);
+      menuItemGO.on("pointerover", () => {
+        menuItemGO.setFill(this.MENU_CONFIG.hoverFontOptions.fill);
       });
 
       // Off hover event
-      newMenuItem.on("pointerout", () => {
-        newMenuItem.setFill(this.MENU_CONFIG.fontOptions.fill);
+      menuItemGO.on("pointerout", () => {
+        menuItemGO.setFill(this.MENU_CONFIG.fontOptions.fill);
       });
-    });
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////////
